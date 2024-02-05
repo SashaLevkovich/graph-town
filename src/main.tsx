@@ -6,21 +6,28 @@ import { InitScene } from './scene/InitScene';
 import { LoadAssetsScene } from './scene/LoadAssetsScene';
 import { MainScene } from './scene/MainScene';
 
+import { FindPathMenu } from './feature/FindPathMenu/FindPathMenu';
 import './index.css';
+import { IndexDB } from './shared/utils/indexDB';
 
-const initScene = new InitScene();
-initScene.start();
+const indexDb = new IndexDB();
 
-const assets = new LoadAssetsScene();
-assets.start();
+indexDb.onSuccessOpened = async () => {
+  const initScene = new InitScene();
+  initScene.start();
 
-const mainScene = new MainScene(initScene, assets.assetsMap);
-mainScene.start();
+  const assets = new LoadAssetsScene();
+  await assets.start();
 
-const root = createRoot(document.getElementById('root')!);
+  const mainScene = new MainScene(initScene, assets.assetsMap);
+  mainScene.start();
 
-root.render(
-  <>
-    <HouseMenu scene={mainScene} />
-  </>
-);
+  const root = createRoot(document.getElementById('root')!);
+
+  root.render(
+    <>
+      <HouseMenu scene={mainScene} />
+      <FindPathMenu pathPainter={mainScene.pathPainter} housePainter={mainScene.housePainter} />
+    </>
+  );
+};

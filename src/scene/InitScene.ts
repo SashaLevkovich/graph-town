@@ -50,7 +50,7 @@ export class InitScene implements IActionScene {
     this.scene.add(grid);
     this.scene.add(hemiLight);
 
-    this.camera.position.set(11.355728920849053, 50.579716475504686, 100.31142433676645);
+    this.camera.position.set(25, 16, 40);
 
     this.orbitControl.maxPolarAngle = Math.PI / 2;
     this.orbitControl.minDistance = 50;

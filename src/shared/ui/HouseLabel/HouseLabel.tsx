@@ -3,6 +3,8 @@ import { ChangeEvent, useState } from 'react';
 import { Button, Form, Input, Spin } from 'antd';
 import cn from 'classnames';
 
+import { useDebounce } from '@/shared/hooks/useDebounce';
+import { IndexDB } from '@/shared/utils/indexDB';
 import './HouseLabel.css';
 
 type TProps = {
@@ -27,7 +29,7 @@ export const HouseLabel: React.FC<TProps> = ({
     const nameIsEmpty = !Boolean(title);
 
     if (nameIsEmpty) {
-      setError('Имя не может быть пустым');
+      setError('The name cannot be empty');
       return;
     }
 
@@ -36,11 +38,28 @@ export const HouseLabel: React.FC<TProps> = ({
     setIsMount(true);
   };
 
+  const checkIsNameUniq = useDebounce(async (name: string) => {
+    const db = new IndexDB();
+
+    const houses = await db.getAllHousesInfo();
+
+    const nameIsTaken = houses.some(({ houseName }) => houseName === name);
+
+    if (nameIsTaken) {
+      setError('Name is already taken');
+      setLoading(false);
+      return;
+    }
+
+    setError(null);
+    setLoading(false);
+  }, 300);
+
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
     const name = e.target.value;
     setTitle(name);
-
+    checkIsNameUniq(name);
     onChangeName(name);
   };
 
