@@ -65,44 +65,41 @@ export const FindPathMenu = ({ pathPainter, housePainter }: PropsType) => {
     const hasNodes = nodeTo && nodeFrom;
 
     if (!hasNodes) {
-      setFindError('Маршрут не найден');
+      setFindError('Route not found');
       return;
     }
 
     const possiblePathMatrix = housePathGraph.getAllPaths(nodeFrom, nodeTo);
     const pathsMap = createPathMapFromPathMatrix(possiblePathMatrix);
 
-    console.log('possiblePathMatrix :>> ', possiblePathMatrix);
-    console.log('pathsMap :>> ', pathsMap);
-
     setPathsMap(pathsMap);
-    setFindError(possiblePathMatrix.length === 0 ? 'Маршрут не найден' : '');
+    setFindError(possiblePathMatrix.length === 0 ? 'Route not found' : '');
   };
 
   if (!pathPainter || !housePainter) return <></>;
 
   return (
-    <Card rootClassName='find-path-container' title='Найти маршрут'>
+    <Card rootClassName='find-path-container' title='Find route'>
       <Form onFinish={handleSearchPath}>
         <Flex gap='middle' vertical>
           <Form.Item
             name='from'
             style={{ marginBottom: 0 }}
-            rules={[{ required: true, message: 'Поле обязательно' }]}
+            rules={[{ required: true, message: 'Required field' }]}
           >
-            <Input placeholder='откуда' />
+            <Input placeholder='From' />
           </Form.Item>
 
           <Form.Item
             name='to'
             style={{ marginBottom: 0 }}
-            rules={[{ required: true, message: 'Поле обязательно' }]}
+            rules={[{ required: true, message: 'Required field' }]}
           >
-            <Input placeholder='куда' />
+            <Input placeholder='To' />
           </Form.Item>
 
           <Button htmlType='submit' type='primary'>
-            Найти
+            Find
           </Button>
         </Flex>
       </Form>

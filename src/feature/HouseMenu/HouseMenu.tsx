@@ -9,10 +9,10 @@ export const HouseMenu = ({ scene }: TypeProps) => {
 
   return (
     <ul className='houses-menu'>
-      <Button onClick={() => handleClick('castle')}>Замок</Button>
-      <Button onClick={() => handleClick('pizzashop')}>Пиццерия</Button>
-      <Button onClick={() => handleClick('shack')}>Лачуга</Button>
-      <Button onClick={() => handleClick('woodhouse')}>Изба</Button>
+      <Button onClick={() => handleClick('castle')}>Castle</Button>
+      <Button onClick={() => handleClick('pizzashop')}>Pizza shop</Button>
+      <Button onClick={() => handleClick('shack')}>Shack</Button>
+      <Button onClick={() => handleClick('woodhouse')}>Woodhouse</Button>
     </ul>
   );
 };
