@@ -1,7 +1,11 @@
-import { HousePainter } from '@/feature/HousePainter';
-import { House } from '@/shared/House';
 import { Event, Group, Mesh, Object3D, Raycaster, Vector2 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+
+import { HousePainter } from '@/feature/HousePainter';
+import { PathPainter } from '@/feature/PathPainter';
+
+import { SceneConnector } from '@/entities/SceneConnector';
+
 import { IActionScene } from './IActionScene';
 
 export class MainScene {
@@ -9,54 +13,37 @@ export class MainScene {
   readonly assetsMap: Map<string, GLTF>;
 
   private raycaster: Raycaster = new Raycaster();
-  private draftHouse: House | null = null;
+
   private housePainter: HousePainter | null = null;
+  private pathPainter: PathPainter | null = null;
+  private sceneConnector = new SceneConnector();
 
   constructor(actionScene: IActionScene, assetsMap: Map<string, GLTF>) {
     this.actionScene = actionScene;
     this.assetsMap = assetsMap;
 
-    window.ondblclick = (event) => {
-      const pointer = this.getPointerPosition(event);
-      const intersect = this.getIntersectWithGround(pointer);
-
-      this.draftHouse?.moveTo(intersect.point);
-    };
-
-    window.onkeydown = (event) => {
-      if (event.key === 'Enter' && this.draftHouse) {
-        this.draftHouse.setOpacity(1);
-
-        this.draftHouse = null;
-      }
-    };
+    this.sceneConnector.getPointerPosition = this.getPointerPosition.bind(this);
+    this.sceneConnector.getIntersectWithGround = this.getIntersectWithGround.bind(this);
+    this.sceneConnector.getIntersectWithScene = this.getIntersectWithScene.bind(this);
+    this.sceneConnector.addToScene = this.addToScene.bind(this);
+    this.sceneConnector.removeFromScene = this.removeFromScene.bind(this);
   }
 
   async start() {
-    this.housePainter = new HousePainter(this.assetsMap);
-    this.housePainter.getPointerPosition = this.getPointerPosition.bind(this);
-    this.housePainter.getIntersectWithGround = this.getIntersectWithGround.bind(this);
-    this.housePainter.addToScene = this.addToScene.bind(this);
+    this.housePainter = new HousePainter(this.sceneConnector, this.assetsMap);
+    this.pathPainter = new PathPainter(this.sceneConnector);
   }
 
   mountDraftHouseOnScene(title: string) {
-    const houseGLTF = this.assetsMap.get(title);
-
-    if (!houseGLTF) return;
-
-    const houseCloneMesh = houseGLTF.scene.clone(true);
-
-    const house = new House(houseCloneMesh);
-
-    house.setOpacity(0.5);
-
-    this.draftHouse = house;
-
-    this.actionScene.scene.add(houseCloneMesh);
+    this.housePainter?.mountDraftHouseOnScene(title);
   }
 
   private addToScene(element: Object3D<Event> | Group | Mesh) {
     this.actionScene.scene.add(element);
+  }
+
+  private removeFromScene(element: Object3D<Event> | Group | Mesh) {
+    this.actionScene.scene.remove(element);
   }
 
   private getPointerPosition(event: PointerEvent | MouseEvent) {
@@ -72,5 +59,11 @@ export class MainScene {
     this.raycaster.setFromCamera(pointer, this.actionScene.camera);
 
     return this.raycaster.intersectObject(this.actionScene.ground)[0];
+  }
+
+  private getIntersectWithScene(pointer: Vector2) {
+    this.raycaster.setFromCamera(pointer, this.actionScene.camera);
+
+    return this.raycaster.intersectObjects(this.actionScene.scene.children, true);
   }
 }
